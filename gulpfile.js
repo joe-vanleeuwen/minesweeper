@@ -9,9 +9,11 @@ var del = require("del")
 var runSequence = require("gulp-run-sequence")
 var coffee = require("gulp-coffee")
 var gutil = require("gulp-util")
+var sass = require("gulp-sass")
 
 var scriptsPath = "./src/**/*.coffee"
 var vendorPath = "./src/vendor/**/*.js"
+var stylesPath = "./src/**/*.scss"
 
 gulp.task("build-scripts", function () {
   return gulp.src(scriptsPath)
@@ -30,9 +32,20 @@ gulp.task("build-scripts", function () {
     .pipe(gulp.dest("./build/scripts"))
 })
 
+gulp.task("build-styles", function () {
+  gulp.src(stylesPath)
+    .pipe(sourceMaps.init())
+    .pipe(sass().on("error", sass.logError))
+    .pipe(concat("app.css"))
+    .pipe(sourceMaps.write("."))
+    .pipe(gulp.dest("./build/css"));
+});
+
+
 gulp.task("watch", function () {
   gulp.watch(scriptsPath, ["build-scripts"])
   gulp.watch(vendorPath, ["build-vendor"])
+  gulp.watch(stylesPath, ["build-styles"])
 })
 
 gulp.task("serve", function () {
@@ -53,7 +66,7 @@ gulp.task("build-clean", function () {
 })
 
 gulp.task("build", function () {
-  runSequence("build-clean", ["build-scripts", "build-vendor", "static"])
+  runSequence("build-clean", ["build-scripts", "build-vendor", "build-styles", "static"])
 })
 
 gulp.task("build-vendor", function () {
