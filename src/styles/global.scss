@@ -1,7 +1,27 @@
+$squareColor: #C2C2C2;
+
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 #app {
-  .board {
-    margin: 100px auto;
-    background: orange;
-    
+  // .board-container {
+  // }
+  table.board {
+    margin: 100px auto 0;
+    border-collapse: separate;
+    td {
+      height: 25px;
+      width: 25px;
+      cursor: default;
+      border-top: 2px solid lighten($squareColor, 20%);
+      border-left: 2px solid lighten($squareColor, 20%);
+      border-right: 2px solid darken($squareColor, 20%);
+      border-bottom: 2px solid darken($squareColor, 20%);
+      background-color: $squareColor;
+    }
   }
 }
