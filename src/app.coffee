@@ -24,11 +24,11 @@ board = _.extend events,
     @options = options
     @fresh = yes
     @registerEventHandler "show:square", ($square)->
-      position = 
-        row: $square.data("row")
-        column: $square.data("column")
+      initial = 
+        x: $square.data("x")
+        y: $square.data("y")
       if @fresh
-        @createData(position)
+        @createData(initial)
       # trigger check
       @fresh = no
     @newGame()
@@ -36,40 +36,37 @@ board = _.extend events,
   newGame: ->
     @createBoard()
 
-  createData: (position)->
+  createData: (initial)->
     {rows, columns, bombs} = @options
     # empties = _.flatten(_.map([0..rows-1], (r)-> _.map([0..columns-1], (c)-> { r:r,c:c })))
 
     empties = []
-    for r in [0..rows-1]
-      for c in [0..columns-1] when not (r is position.row and c is position.column)
-        empties.push({ r:r,c:c })
+    for x in [0..rows-1]
+      for y in [0..columns-1] when not (x is initial.x and y is initial.y)
+        empties.push({ x:x,y:y })
 
-    data = _.map([1..rows], -> [])
-    data[position.row][position.column] = {type: "empty", state: "cleared"} # new Square(state: "cleared")
+    squares = _.map([1..rows], -> [])
+
     l = empties.length
-
+    # disperse the bombs
     while (empties.length > l - bombs)
       n = _.random(empties.length - 1)
-      position = empties[n]
-      data[position.r][position.c] = {type: "bomb", state: "hidden"}
+      {x,y} = empties[n]
+      squares[x][y] = {type: "bomb"} # state: "hidden"
       empties.splice(n, 1)
-    console.log "data", data
 
-    # TODO: add in rest of squares!
+    empties.push(initial)
 
+    # set the numbers. A delicate treatment of scope.
+    for {x,y} in empties
+      # grid of the 8 surrounding positions 
+      grid = [[x-1,y-1],[x-1,y],[x-1,y+1],[x,y-1],[x,y+1],[x+1,y-1],[x+1,y],[x+1,y+1]]
+      # calculate the number of adjacent bombs
+      squares[x][y] =
+        bombs: (1 for [x,y] in grid when squares[x]?[y]?.type is "bomb").length
 
-    # INEFFICIENT
-    # data = _.map([1..rows], (n)-> [])
-    # data[position.row][position.column] = {type: "empty", state: "cleared"} # new Square(state: "cleared")
-    # i = 0
-    # while (i < bombs)
-    #   row = _.random(rows - 1)
-    #   column = _.random(columns - 1)
-    #   if not data[row][column]
-    #     data[row][column] = {type: "bomb", state: "hidden"}
-    #     i++
-    # console.log "data", data
+    # TODO: create square class?
+    # TODO: reveal all empty squares and there neighboring squares that have bomb counts
 
   createBoard: ->
     {rows, columns} = @options
@@ -81,9 +78,8 @@ board = _.extend events,
     for row in [0..rows-1]
       $(".board").append("<tr></tr>")
       for column in [0..columns-1]
-        position = {row: row, column: column}
         $tr = $(".board").find("tr").last()
-        $tr.append("<td data-row='"+row+"' data-column='"+column+"'></td>")
+        $tr.append("<td data-x='"+row+"' data-y='"+column+"'></td>")
         $tr.find("td").last().on "click", (e)=>
           $t = $(e.currentTarget)
           if e.which is 1
@@ -104,7 +100,7 @@ board = _.extend events,
 $(document).ready ->
   console.log "Init!"
   board.init
-    rows: 2
-    columns: 2
-    bombs: 3
+    rows: 3
+    columns: 3
+    bombs: 8
   
