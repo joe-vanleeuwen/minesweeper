@@ -6,7 +6,7 @@ $(document).ready ->
   board.init
     rows: 3
     columns: 3
-    bombs: 8
+    bombs: 0
 
 
 

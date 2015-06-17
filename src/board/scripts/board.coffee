@@ -15,7 +15,8 @@ board = _.extend events,
     if @fresh
       @fresh = no
       @createData(initial)
-    @reveal(initial)
+    list = @reveal(initial)
+    console.log "the list", list
     # trigger check
 
   newGame: ->
@@ -24,6 +25,8 @@ board = _.extend events,
   createData: (initial)->
     empties = @createEmpties(initial)
     @squares = @createSquares()
+
+    window.squares = @squares
 
     l = empties.length
     # disperse the bombs
@@ -38,7 +41,7 @@ board = _.extend events,
     # set the numbers. A delicate treatment of scope.
     for {x,y} in empties
       # grid of the 8 surrounding positions 
-      grid = [[x-1,y-1],[x-1,y],[x-1,y+1],[x,y-1],[x,y+1],[x+1,y-1],[x+1,y],[x+1,y+1]]
+      grid = @createGrid(x,y)
       # calculate the number of adjacent bombs
       @squares[x][y] =
         bombs: (1 for [x,y] in grid when @squares[x]?[y]?.type is "bomb").length
@@ -53,8 +56,24 @@ board = _.extend events,
   createSquares: ->
     _.map([1..@rows], -> [])
 
-  reveal: ({x,y})->
+  createGrid: (x,y)->
+    [[x-1,y-1],[x-1,y],[x-1,y+1],[x,y-1],[x,y+1],[x+1,y-1],[x+1,y],[x+1,y+1]]
+
+
+  # TODO: add initial square to the list!! -> list[x][y] = { x:x,y:y }
+  reveal: ({x,y}, list=@createSquares())->
     # if is bomb then reveal all squares and end game
+    # maybe try some recursion for finding all squares that need to be revealed?
+    grid = @createGrid(x,y)
+    # If square is an actualy square and has not been added to list of squares to be revealed
+    for [x,y] in grid when (square = @squares[x]?[y]) and not list[x]?[y]
+      if square.type isnt "bomb"
+        # add position to the list
+        list[x][y] = { x:x,y:y }
+      if square.bombs is 0
+        # this is an empty square so check its neighboring squares
+        @reveal({ x:x,y:y }, list)
+    return _.flatten(list)
 
   createBoard: ->
     $("#app").append("""
