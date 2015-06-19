@@ -1,6 +1,7 @@
 # event handling
-events =
-  _eventHandlers: {}
+class Events
+  constructor: ->
+    @_eventHandlers = {}
 
   registerEventHandler: (e, handler)->
     if !@_eventHandlers[e]
@@ -14,6 +15,8 @@ events =
         handler.apply(@, args)
 
   listenTo: (obj, e, handler)->
-    obj.registerEventHandler(e, handler)
+    boundHandler = _.bind(handler, @)
+    window.boundHandler = boundHandler
+    obj.registerEventHandler(e, boundHandler)
 
-module.exports = events
+module.exports = Events
