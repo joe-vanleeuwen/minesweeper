@@ -1,21 +1,19 @@
-events = require("/utils/events")
+Events = require("/utils/events")
+Square = require("./square")
 
-board = _.extend events,
-  init: (options={})->
+class Minesweeper extends Events
+  constructor: (options={})->
+    super()
     @options = options
     {@rows, @columns, @bombs} = @options
     @fresh = yes
-    @registerEventHandler "show:square", @onShowSquare
     @newGame()
 
-  onShowSquare: ($square)->
-    initial = 
-      x: $square.data("x")
-      y: $square.data("y")
+  onShowSquare: (position)->
     if @fresh
       @fresh = no
-      @createData(initial)
-    list = @reveal(initial)
+      @createData(position)
+    list = @reveal(position)
     console.log "the list", list
     # trigger check
 
@@ -25,8 +23,6 @@ board = _.extend events,
   createData: (initial)->
     empties = @createEmpties(initial)
     @squares = @createSquares()
-
-    window.squares = @squares
 
     l = empties.length
     # disperse the bombs
@@ -59,7 +55,6 @@ board = _.extend events,
   createGrid: (x,y)->
     [[x-1,y-1],[x-1,y],[x-1,y+1],[x,y-1],[x,y+1],[x+1,y-1],[x+1,y],[x+1,y+1]]
 
-
   # TODO: add initial square to the list!! -> list[x][y] = { x:x,y:y }
   reveal: ({x,y}, list=@createSquares())->
     # if is bomb then reveal all squares and end game
@@ -76,21 +71,19 @@ board = _.extend events,
     return _.flatten(list)
 
   createBoard: ->
+    @board = @createSquares()
     $("#app").append("""
       <table class='board'>
         <tbody></tbody>
       </table>
       """)
-    for row in [0..@rows-1]
-      $(".board").append("<tr></tr>")
-      for column in [0..@columns-1]
+    for x in [0..@rows-1]
+      $(".board tbody").append("<tr></tr>")
+      for y in [0..@columns-1]
+        square = new Square(position: {x:x,y:y})
         $tr = $(".board").find("tr").last()
-        $tr.append("<td data-x='"+row+"' data-y='"+column+"'></td>")
-        $tr.find("td").last().on "click", (e)=>
-          $t = $(e.currentTarget)
-          if e.which is 1
-            @fireEvent "show:square", $t
-          else if e.which is 3
-            @fireEvent "flag:square", $t
+        $tr.append square.$el
+        @listenTo square, "show:square", @onShowSquare
+        @board[x][y] = square
 
-module.exports = board
+module.exports = Minesweeper
