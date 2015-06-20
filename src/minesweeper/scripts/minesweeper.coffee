@@ -6,30 +6,38 @@ class Minesweeper extends Events
     super()
     @options = options
     {@rows, @columns, @bombs} = @options
-    @fresh = yes
     @newGame()
 
-  onShowSquare: (position)->
-    if @fresh
-      @fresh = no
+  onShowSquare: (square)->
+    {position} = square
+    console.log "the position", position
+    if @isNewGame
+      @isNewGame = no
       @createData(position)
+    # if square.isBomb
+      # @gameOver
     list = @reveal(position)
+
     console.log "the list", list
+
+    for square in list
+      square.show()
+
     # trigger check
 
   newGame: ->
+    @isNewGame = yes
     @createBoard()
 
   createData: (initial)->
     empties = @createEmpties(initial)
-    @squares = @createSquares()
 
     l = empties.length
     # disperse the bombs
     while (empties.length > l - @bombs)
       n = _.random(empties.length - 1)
       {x,y} = empties[n]
-      @squares[x][y] = {type: "bomb"} # state: "hidden"
+      @board[x][y].isBomb = yes
       empties.splice(n, 1)
     # add the initial selected square into empties
     empties.push(initial)
@@ -39,8 +47,7 @@ class Minesweeper extends Events
       # grid of the 8 surrounding positions 
       grid = @createGrid(x,y)
       # calculate the number of adjacent bombs
-      @squares[x][y] =
-        bombs: (1 for [x,y] in grid when @squares[x]?[y]?.type is "bomb").length
+      @board[x][y].bombs = (1 for [x,y] in grid when @board[x]?[y]?.isBomb).length
 
   createEmpties: (initial)->
     empties = []
@@ -61,14 +68,15 @@ class Minesweeper extends Events
     # maybe try some recursion for finding all squares that need to be revealed?
     grid = @createGrid(x,y)
     # If square is an actualy square and has not been added to list of squares to be revealed
-    for [x,y] in grid when (square = @squares[x]?[y]) and not list[x]?[y]
-      if square.type isnt "bomb"
+    for [x,y] in grid when (square = @board[x]?[y]) and not list[x]?[y]
+      console.log "square is", square
+      if not square.isBomb
         # add position to the list
-        list[x][y] = { x:x,y:y }
+        list[x][y] = square
       if square.bombs is 0
         # this is an empty square so check its neighboring squares
         @reveal({ x:x,y:y }, list)
-    return _.flatten(list)
+    return _.compact(_.flatten(list))
 
   createBoard: ->
     @board = @createSquares()

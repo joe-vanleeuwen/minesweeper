@@ -1,16 +1,35 @@
 $squareColor: #C2C2C2;
+$revealed: #B0B0B0;
 
 table.board {
   margin: 100px auto 0;
   border-collapse: separate;
+  border-spacing: 0;
   td {
     height: 25px;
     width: 25px;
+    text-align: center;
+    font-family: "Courier";
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 0px;
     cursor: default;
     border-top: 2px solid lighten($squareColor, 20%);
     border-left: 2px solid lighten($squareColor, 20%);
     border-right: 2px solid darken($squareColor, 20%);
     border-bottom: 2px solid darken($squareColor, 20%);
     background-color: $squareColor;
+    &.revealed {
+      border: 1px solid darken($squareColor, 20%);
+      background-color: $revealed;
+      &.one { color: #4800FF; }
+      &.two { color: #007A00; }
+      &.three { color: #FF0000; }
+      &.four { color: #2E0090; }
+      &.five { color: #2424CE; }
+      &.six { color: #007C7D; }
+      &.seven { color: #880F88; }
+      &.eight { color: #000; }
+    }
   }
 }
