@@ -46,6 +46,7 @@ gulp.task("watch", function () {
   gulp.watch(scriptsPath, ["build-scripts"])
   gulp.watch(vendorPath, ["build-vendor"])
   gulp.watch(stylesPath, ["build-styles"])
+  gulp.watch("./src/index.html", ["build-static"])
 })
 
 gulp.task("serve", function () {
@@ -56,9 +57,11 @@ gulp.task("serve", function () {
     }))
 })
 
-gulp.task("static", function () {
+gulp.task("build-static", function () {
   gulp.src("./src/index.html")
     .pipe(gulp.dest("./build"))
+  gulp.src("./src/images/**.*")
+    .pipe(gulp.dest("./build/images"))
 })
 
 gulp.task("build-clean", function () {
@@ -66,7 +69,7 @@ gulp.task("build-clean", function () {
 })
 
 gulp.task("build", function () {
-  runSequence("build-clean", ["build-scripts", "build-vendor", "build-styles", "static"])
+  runSequence("build-clean", ["build-static", "build-scripts", "build-vendor", "build-styles"])
 })
 
 gulp.task("build-vendor", function () {

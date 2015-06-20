@@ -4,9 +4,9 @@ Minesweeper = require("minesweeper/scripts/minesweeper")
 $(document).ready ->
   console.log "Init!"
   new Minesweeper
-    rows: 10
-    columns: 10
-    bombs: 10
+    rows: 16
+    columns: 30
+    bombs: 99
 
 
 

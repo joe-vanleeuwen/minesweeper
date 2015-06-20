@@ -22,6 +22,7 @@ class Square extends Events
   render: -> @$el
 
   classes:
+    0: "zero"
     1: "one"
     2: "two"
     3: "three"
@@ -32,17 +33,17 @@ class Square extends Events
     8: "eight"
 
   show: ->
-    console.log "showing", @position
     if @isBomb
-      @$el.text("B").addClass("revealed")
+      @$el.addClass("revealed bomb")
     else
-      @$el.text(@bombs or "").addClass("revealed " + (@classes[@bombs] or ""))
+      @$el.addClass("revealed #{@classes[@bombs]}")
     # else if @bombs is 0
 
 
 
   onShowSquare: ->
-    console.log "on Show Square !!!"
+    # console.log "on Show Square !!!"
+    # @show()
 
 
   setClickEvent: ->

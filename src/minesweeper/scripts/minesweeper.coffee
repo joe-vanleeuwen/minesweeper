@@ -80,16 +80,11 @@ class Minesweeper extends Events
 
   createBoard: ->
     @board = @createSquares()
-    $("#app").append("""
-      <table class='board'>
-        <tbody></tbody>
-      </table>
-      """)
     for x in [0..@rows-1]
-      $(".board tbody").append("<tr></tr>")
+      $(".squares tbody").append("<tr></tr>")
       for y in [0..@columns-1]
         square = new Square(position: {x:x,y:y})
-        $tr = $(".board").find("tr").last()
+        $tr = $(".squares").find("tr").last()
         $tr.append square.$el
         @listenTo square, "show:square", @onShowSquare
         @board[x][y] = square

@@ -1,0 +1,102 @@
+$grey: #BDBDBD;
+$darkGrey: #7B7B7B;
+$sprite: url("/images/sprite.gif");
+
+.board, {
+  background-color: $grey;
+  border-top: 2px solid #FFF;
+  border-left: 2px solid #FFF;
+  border-right: 2px solid $darkGrey;
+  border-bottom: 2px solid $darkGrey;
+}
+
+.top-bar, .squares {
+  background-color: $grey;
+  border-right: 2px solid #FFF;
+  border-bottom: 2px solid #FFF;
+  border-top: 2px solid $darkGrey;
+  border-left: 2px solid $darkGrey;
+}
+
+.board {
+  padding: 6px;
+  display: inline-block;
+  margin: 100px auto 0;
+  .top-bar {
+    height: 36px;
+    position: relative;
+    margin-bottom: 6px;
+    .face {
+      background-image: $sprite;
+      width:26px;
+      height:26px;
+      position: absolute;
+      top: 3px;
+      left: calc(50% - 13px);
+      &.smile {background-position:0 -55px;}
+      &.pressed {background-position:-26px -55px;}
+      &.ooh {background-position:-52px -55px;}
+      &.dead {background-position:-78px -55px;}
+      &.win {background-position:-104px -55px;}
+    }
+    .digits {
+      position: absolute;
+      top: 4px;
+      &.mines-count {left: 6px;}
+      &.time-count {right: 6px;}
+      > div {
+        background-image: $sprite;
+        height: 23px;
+        width: 13px;
+        float: left;
+        display: inline-block;
+        &.time0 {background-position:0 0;}
+        &.time1 {background-position:-13px 0;}
+        &.time2 {background-position:-26px 0;}
+        &.time3 {background-position:-39px 0;}
+        &.time4 {background-position:-52px 0;}
+        &.time5 {background-position:-65px 0;}
+        &.time6 {background-position:-78px 0;}
+        &.time7 {background-position:-91px 0;}
+        &.time8 {background-position:-104px 0;}
+        &.time9 {background-position:-117px 0;}
+        &.time- {background-position:-130px 0;}
+      }
+    }
+  }
+}
+
+table.squares {
+  margin: 0 auto;
+  border-spacing: 0;
+  td {
+    background-image: $sprite;
+    background-position: 0px -39px;
+    width:16px;
+    height:16px;
+    text-align: center;
+    cursor: default;
+    &.revealed {
+      &.zero {background-position:0 -23px;}
+      &.one {background-position:-16px -23px;}
+      &.two {background-position:-32px -23px;}
+      &.three {background-position:-48px -23px;}
+      &.four {background-position:-64px -23px;}
+      &.five {background-position:-80px -23px;}
+      &.six  {background-position:-96px -23px;}
+      &.seven {background-position:-112px -23px;}
+      &.eight {background-position:-128px -23px;}
+      &.bomb {background-position:-64px -39px;}
+      &.bomb-flagged {background-position:-16px -39px;}
+      &.bomb-death {background-position:-32px -39px;}
+      &.bomb-misflagged {background-position:-48px -39px;}
+      &.question {background-position:-80px -39px;}
+      &.question-pressed {background-position:-96px -39px;}
+    }
+  }
+}
+
+// body {user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;}
+// #game {tap-highlight-color:rgba(0,0,0,0);-webkit-tap-highlight-color:rgba(0,0,0,0);-moz-tap-highlight-color:rgba(0,0,0,0);-ms-tap-highlight-color:rgba(0,0,0,0);}
+// #game {background-color:#C0C0C0;}
+
