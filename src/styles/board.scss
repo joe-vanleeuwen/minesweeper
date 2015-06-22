@@ -19,8 +19,8 @@ $sprite: url("/images/sprite.gif");
 }
 
 .board {
+  display: none;
   padding: 6px;
-  display: inline-block;
   margin: 100px auto 0;
   .top-bar {
     height: 36px;

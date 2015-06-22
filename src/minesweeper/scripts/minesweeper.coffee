@@ -7,10 +7,12 @@ class Minesweeper extends Events
     @options = options
     {@rows, @columns, @bombs} = @options
     @newGame()
+    window.minesweeper = @
 
   onShowSquare: (square)->
+    # console.log "@", @
     {position} = square
-    console.log "the position", position
+    # console.log "the position", position
     if @isNewGame
       @isNewGame = no
       @createData(position)
@@ -22,6 +24,7 @@ class Minesweeper extends Events
 
     for square in list
       square.show()
+      @stopListening square, "show:square", @onShowSquare
 
     # trigger check
 
@@ -69,7 +72,7 @@ class Minesweeper extends Events
     grid = @createGrid(x,y)
     # If square is an actualy square and has not been added to list of squares to be revealed
     for [x,y] in grid when (square = @board[x]?[y]) and not list[x]?[y]
-      console.log "square is", square
+      # console.log "square is", square
       if not square.isBomb
         # add position to the list
         list[x][y] = square
@@ -80,13 +83,18 @@ class Minesweeper extends Events
 
   createBoard: ->
     @board = @createSquares()
+    window.board = @board
+    squares = $("<tbody></tbody>")
     for x in [0..@rows-1]
-      $(".squares tbody").append("<tr></tr>")
+      squares.append("<tr></tr>")
       for y in [0..@columns-1]
         square = new Square(position: {x:x,y:y})
-        $tr = $(".squares").find("tr").last()
+        $tr = squares.find("tr").last()
         $tr.append square.$el
+        # squares.after(square.$el)
         @listenTo square, "show:square", @onShowSquare
         @board[x][y] = square
+    $(".squares").append(squares) 
+    $(".board").css("display", "inline-block")
 
 module.exports = Minesweeper

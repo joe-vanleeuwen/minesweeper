@@ -50,9 +50,9 @@ class Square extends Events
     @$el.on "click", (e)=>
       if e.which is 1
         console.log "not triggering!"
-        @fireEvent "show:square", @
+        @trigger "show:square", @
       else if e.which is 3
-        @fireEvent "flag:square", @position
+        @trigger "flag:square", @position
 
 
 module.exports = Square
