@@ -9,11 +9,12 @@ class Events
     if (handlers? && handlers.length)
       for handler in handlers
         handler.func.apply(handler.context, args)
-        console.log "handler.context is @", handler.context is @
         if handler.once
+          # This was set using once
           if handler.context is @
             @off(e, handler.func)
           else
+          # This was set using listenToOnce
             handler.context.stopListening(@, e, handler.func)
     return @
 
@@ -26,7 +27,8 @@ class Events
       once: once
     return @
 
-  # once: 
+  once: (e, handler, context=@)->
+    @on(e, handler, context, once=yes)
 
   listenTo: (obj, e, handler, once=no)->
     @_listenTos = _.union(@_listenTos, [obj])
@@ -38,21 +40,7 @@ class Events
 
   stopListening: (obj, e, handlerToRemove)->
     if obj
-      events = []
-      events = _.flatten (v for k,v of obj._eventHandlers)
-      console.log "events", events
-      instances = _.union (h for h in events when h.context is @)
-      if instances.length is 1
-        @_listenTos = (o for o in @_listenTos when o isnt obj)
-      console.log "instances", instances
-      console.log "@_listenTos", @_listenTos
-
       obj.off(e, handlerToRemove, context=@)
-      handlers = @_eventHandlers[e]
-      # TODO: remove obj from @listenTos if there is no event with this object ast the context
-      # @_listenTos = (obj for obj in @_listenTos when obj isnt)
-      # test = []
-
     else
       for obj in @_listenTos
         obj.off(e, handlerToRemove, context=@)
@@ -60,18 +48,48 @@ class Events
     return @
 
   off: (e, handlerToRemove, context)->
-    console.log "e, handlerToRemove, context", e, handlerToRemove, context
     if not _.compact(arguments).length
+      @_removeListeners(@_eventHandlers)
       @_reset()
     else if e and not handlerToRemove and not context
+      @_removeListeners(@_eventHandlers[e])
       delete @_eventHandlers[e]
     else
       for k,v of @_eventHandlers when not e or (e and e is k)
-        events = (h for h in v when h.context isnt context and h.func isnt handlerToRemove)
+        # events = (h for h in v when h.context isnt context and h.func isnt handlerToRemove)
+        events = []
+        eventsToRemove = []
+        for h in v
+          if h.context isnt context and h.func isnt handlerToRemove
+            events.push(h)
+          else
+            eventsToRemove.push(h)
+        @_removeListeners(eventsToRemove)
+
         @_eventHandlers[k] = events
-        console.log "events.length", events.length
         delete @_eventHandlers[k] if not events.length
     return @
+
+  # Not sure if this is really necessary
+  _removeListenTo: (obj)->
+    events = _.flatten (v for k,v of obj._eventHandlers)
+    instances = (h for h in events when h.context is @)
+    if instances.length is 1
+      i = @_listenTos.indexOf(obj)
+      @_listenTos.splice(i,1)
+
+  # Needs a better name
+  _removeListeners: (handlers)->
+    removeListeners = (handlers)=>
+      # Get the number of times each context is used ?
+      for handler in handlers when handler.context isnt @
+        handler.context._removeListenTo(@)
+
+    if _.isArray handlers
+      removeListeners(handlers)
+    else
+      for e, handlers of handlers
+        removeListeners(handlers)
 
   _setListenters: ->
     for k, v of @

@@ -7,6 +7,17 @@ class Square extends Events
     isBomb: no
     isRevealed: no
 
+  classes:
+    0: "zero"
+    1: "one"
+    2: "two"
+    3: "three"
+    4: "four"
+    5: "five"
+    6: "six"
+    7: "seven"
+    8: "eight"
+
   constructor: (options) ->
     super()
     for k, v of _.extend @defaults, options
@@ -21,27 +32,16 @@ class Square extends Events
 
   render: -> @$el
 
-  classes:
-    0: "zero"
-    1: "one"
-    2: "two"
-    3: "three"
-    4: "four"
-    5: "five"
-    6: "six"
-    7: "seven"
-    8: "eight"
-
   show: ->
     if @isBomb
       @$el.addClass("revealed bomb")
     else
       @$el.addClass("revealed #{@classes[@bombs]}")
+    @off()
     # else if @bombs is 0
 
-
-
   onShowSquare: ->
+    # @off()
     # console.log "on Show Square !!!"
     # @show()
 

@@ -24,7 +24,7 @@ class Minesweeper extends Events
 
     for square in list
       square.show()
-      @stopListening square, "show:square", @onShowSquare
+      # @stopListening square, "show:square", @onShowSquare
 
     # trigger check
 
@@ -92,7 +92,7 @@ class Minesweeper extends Events
         $tr = squares.find("tr").last()
         $tr.append square.$el
         # squares.after(square.$el)
-        @listenTo square, "show:square", @onShowSquare
+        @listenToOnce square, "show:square", @onShowSquare
         @board[x][y] = square
     $(".squares").append(squares) 
     $(".board").css("display", "inline-block")
