@@ -51,47 +51,52 @@ class Minesweeper extends Events
     @previousKlass = klass
 
   createData: (initial)->
-    empties = @createEmpties(initial)
+    # List of positions that can be bombs
+    bombable = @createEmpties(initial)
 
-    l = empties.length
+    l = bombable.length
     # disperse the bombs
-    while (empties.length > l - @bombs)
-      n = _.random(empties.length - 1)
-      {x,y} = empties[n]
+    while (bombable.length > l - @bombs)
+      n = _.random(bombable.length - 1)
+      {x,y} = bombable[n]
       @board[x][y].isBomb = yes
-      empties.splice(n, 1)
-    # add the initial selected square into empties
-    empties.push(initial)
+      bombable.splice(n, 1)
+    # positions that are not bombed
+    unbombed = @createEmpties(initial, yes)
 
-    # # set the numbers. A delicate treatment of scope.
-    # for {x,y} in empties
-    #   # grid of the 8 surrounding positions 
-    #   grid = @createGrid(x,y)
-    #   # calculate the number of adjacent bombs
-    #   @board[x][y].bombs = (1 for [x,y] in grid when @board[x]?[y]?.isBomb).length
-
-    for square in _.flatten(@board) when not square.isBomb
+    # set the numbers. A delicate treatment of scope.
+    for {x,y} in unbombed
       # grid of the 8 surrounding positions 
-      grid = @createGrid(square.position.x,square.position.y)
+      grid = @createGrid(x,y)
       # calculate the number of adjacent bombs
-      square.bombs = (1 for [x,y] in grid when @board[x]?[y]?.isBomb).length
+      @board[x][y].bombs = (1 for [x,y] in grid when @board[x]?[y]?.isBomb).length
 
+  # create list of unbombed positions with or without inital and neighboring positions
+  createEmpties: ({x,y}, all=no)->
+    grid = @createGrid(x,y, yes)
 
-
-  createEmpties: (initial)->
-    empties = []
+    matrix = @createMatrix()
     for x in [0..@rows-1]
-      for y in [0..@columns-1] when not (x is initial.x and y is initial.y)
-        empties.push({ x:x,y:y })
-    empties
+      for y in [0..@columns-1] when not @board[x][y].isBomb # seems hacky =/
+        matrix[x][y] = { x:x,y:y }
 
-  createSquares: ->
+    if not all
+      # Remove inital and adjacent positions
+      for [x,y] in grid
+        delete matrix[x]?[y]
+    _.compact(_.flatten(matrix))
+
+  createMatrix: ->
     _.map([1..@rows], -> [])
 
-  createGrid: (x,y)->
-    [[x-1,y-1],[x-1,y],[x-1,y+1],[x,y-1],[x,y+1],[x+1,y-1],[x+1,y],[x+1,y+1]]
+  createGrid: (x,y, includeSelf=no)->
+    grid = [
+      [x-1,y-1],[x-1,y],[x-1,y+1],
+      [x,y-1],          [x,y+1],
+      [x+1,y-1],[x+1,y],[x+1,y+1]]
+    if includeSelf then grid.concat([[x,y]]) else grid
 
-  reveal: ({x,y}, list=@createSquares())->
+  reveal: ({x,y}, list=@createMatrix())->
     # if is bomb then reveal all squares and end game
     grid = @createGrid(x,y)
     # If square is an actual square and has not been added to list of squares to be revealed
@@ -102,11 +107,11 @@ class Minesweeper extends Events
         list[x][y] = square
       if square.bombs is 0
         # this is an empty square so check its neighboring squares
-        @reveal({ x:x,y:y }, list)
+        @reveal(square.position, list)
     return _.compact(_.flatten(list))
 
   createBoard: ->
-    @board = @createSquares()
+    @board = @createMatrix()
     window.board = @board
     squares = $("<tbody></tbody>")
     for x in [0..@rows-1]

@@ -40,7 +40,7 @@ class Square extends Events
         @$el.addClass("revealed bomb-death")
     else
       @$el.addClass("revealed #{@classes[@bombs]}")
-    @off()
+    @silence()
     # else if @bombs is 0
 
   onShowSquare: ->
@@ -61,9 +61,12 @@ class Square extends Events
         @trigger "flag:square", @position
       return false
 
-  destroy: ->
+  silence: ->
     @$el.off()
     @off()
+
+  destroy: ->
+    @silence()
 
 
 module.exports = Square
