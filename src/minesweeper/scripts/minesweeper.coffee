@@ -8,29 +8,47 @@ class Minesweeper extends Events
     {@rows, @columns, @bombs} = @options
     @newGame()
     window.minesweeper = @
+    @setClickFace()
+
+  setClickFace: ->
+    $(".face").on "mousedown", =>
+      @updateFace("pressed")
+    $(".face").on "mouseup", =>
+      @updateFace("smile")
+      @newGame()
 
   onShowSquare: (square)->
-    # console.log "@", @
     {position} = square
-    # console.log "the position", position
+    list = [square]
     if @isNewGame
       @isNewGame = no
       @createData(position)
-    # if square.isBomb
-      # @gameOver
-    list = @reveal(position)
+    if square.isBomb
+      @gameOver(yes)
+    else if square.bombs is 0
+      list = list.concat(@reveal(position))
 
     console.log "the list", list
 
     for square in list
       square.show()
-      # @stopListening square, "show:square", @onShowSquare
 
-    # trigger check
-
-  newGame: ->
+  newGame: (lost=no)->
+    @gameOver(lost)
     @isNewGame = yes
     @createBoard()
+
+  gameOver: (lost=no)->
+    @updateFace("dead") if lost
+    for square in _.flatten(@board)
+      square.destroy()
+      if lost
+        if square.isBomb
+          square.show("game_over")
+
+  updateFace: (klass)->
+    $(".face").removeClass(@previousKlass).addClass(klass)
+    @previousKlass = klass
 
   createData: (initial)->
     empties = @createEmpties(initial)
@@ -45,12 +63,20 @@ class Minesweeper extends Events
     # add the initial selected square into empties
     empties.push(initial)
 
-    # set the numbers. A delicate treatment of scope.
-    for {x,y} in empties
+    # # set the numbers. A delicate treatment of scope.
+    # for {x,y} in empties
+    #   # grid of the 8 surrounding positions 
+    #   grid = @createGrid(x,y)
+    #   # calculate the number of adjacent bombs
+    #   @board[x][y].bombs = (1 for [x,y] in grid when @board[x]?[y]?.isBomb).length
+
+    for square in _.flatten(@board) when not square.isBomb
       # grid of the 8 surrounding positions 
-      grid = @createGrid(x,y)
+      grid = @createGrid(square.position.x,square.position.y)
       # calculate the number of adjacent bombs
-      @board[x][y].bombs = (1 for [x,y] in grid when @board[x]?[y]?.isBomb).length
+      square.bombs = (1 for [x,y] in grid when @board[x]?[y]?.isBomb).length
+
+
 
   createEmpties: (initial)->
     empties = []
@@ -65,12 +91,10 @@ class Minesweeper extends Events
   createGrid: (x,y)->
     [[x-1,y-1],[x-1,y],[x-1,y+1],[x,y-1],[x,y+1],[x+1,y-1],[x+1,y],[x+1,y+1]]
 
-  # TODO: add initial square to the list!! -> list[x][y] = { x:x,y:y }
   reveal: ({x,y}, list=@createSquares())->
     # if is bomb then reveal all squares and end game
-    # maybe try some recursion for finding all squares that need to be revealed?
     grid = @createGrid(x,y)
-    # If square is an actualy square and has not been added to list of squares to be revealed
+    # If square is an actual square and has not been added to list of squares to be revealed
     for [x,y] in grid when (square = @board[x]?[y]) and not list[x]?[y]
       # console.log "square is", square
       if not square.isBomb
@@ -94,7 +118,10 @@ class Minesweeper extends Events
         # squares.after(square.$el)
         @listenToOnce square, "show:square", @onShowSquare
         @board[x][y] = square
-    $(".squares").append(squares) 
+    $(".squares").html(squares) 
     $(".board").css("display", "inline-block")
+
+  destroy: ->
+    @off()
 
 module.exports = Minesweeper

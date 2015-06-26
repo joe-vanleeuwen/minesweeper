@@ -32,9 +32,12 @@ class Square extends Events
 
   render: -> @$el
 
-  show: ->
+  show: (state)->
     if @isBomb
-      @$el.addClass("revealed bomb")
+      if state is "game_over"
+        @$el.addClass("revealed bomb")
+      else
+        @$el.addClass("revealed bomb-death")
     else
       @$el.addClass("revealed #{@classes[@bombs]}")
     @off()
@@ -42,17 +45,25 @@ class Square extends Events
 
   onShowSquare: ->
     # @off()
-    # console.log "on Show Square !!!"
+    console.log "on Show Square !!!", @
     # @show()
 
 
   setClickEvent: ->
     @$el.on "click", (e)=>
+      e.preventDefault()
       if e.which is 1
-        console.log "not triggering!"
+        console.log "left click"
         @trigger "show:square", @
+      # TODO: RIGHT CLICK NOT WORKING
       else if e.which is 3
+        console.log "right click"
         @trigger "flag:square", @position
+      return false
+
+  destroy: ->
+    @$el.off()
+    @off()
 
 
 module.exports = Square
