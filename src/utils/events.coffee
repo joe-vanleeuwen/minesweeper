@@ -79,16 +79,16 @@ class Events
       @_listenTos.splice(i,1)
 
   # Needs a better name
-  _removeListeners: (handlers)->
+  _removeListeners: (_handlers)->
     removeListeners = (handlers)=>
       # Get the number of times each context is used ?
       for handler in handlers when handler.context isnt @
         handler.context._removeListenTo(@)
 
-    if _.isArray handlers
-      removeListeners(handlers)
+    if _.isArray _handlers
+      removeListeners(_handlers)
     else
-      for e, handlers of handlers
+      for e, handlers of _handlers
         removeListeners(handlers)
 
   _setListenters: ->

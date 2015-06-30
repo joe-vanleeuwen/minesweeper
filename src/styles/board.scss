@@ -76,27 +76,21 @@ table.squares {
     height:16px;
     text-align: center;
     cursor: default;
-    &.revealed {
-      &.zero {background-position:0 -23px;}
-      &.one {background-position:-16px -23px;}
-      &.two {background-position:-32px -23px;}
-      &.three {background-position:-48px -23px;}
-      &.four {background-position:-64px -23px;}
-      &.five {background-position:-80px -23px;}
-      &.six  {background-position:-96px -23px;}
-      &.seven {background-position:-112px -23px;}
-      &.eight {background-position:-128px -23px;}
-      &.bomb {background-position:-64px -39px;}
-      &.bomb-flagged {background-position:-16px -39px;}
-      &.bomb-death {background-position:-32px -39px;}
-      &.bomb-misflagged {background-position:-48px -39px;}
-      &.question {background-position:-80px -39px;}
-      &.question-pressed {background-position:-96px -39px;}
-    }
+    &.zero {background-position:0 -23px;}
+    &.one {background-position:-16px -23px;}
+    &.two {background-position:-32px -23px;}
+    &.three {background-position:-48px -23px;}
+    &.four {background-position:-64px -23px;}
+    &.five {background-position:-80px -23px;}
+    &.six  {background-position:-96px -23px;}
+    &.seven {background-position:-112px -23px;}
+    &.eight {background-position:-128px -23px;}
+    &.bomb {background-position:-64px -39px;}
+    &.bomb-flagged {background-position:-16px -39px;}
+    &.bomb-death {background-position:-32px -39px;}
+    &.bomb-misflagged {background-position:-48px -39px;}
+    &.question {background-position:-80px -39px;}
+    &.question-pressed {background-position:-96px -39px;}
   }
 }
-
-// body {user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;}
-// #game {tap-highlight-color:rgba(0,0,0,0);-webkit-tap-highlight-color:rgba(0,0,0,0);-moz-tap-highlight-color:rgba(0,0,0,0);-ms-tap-highlight-color:rgba(0,0,0,0);}
-// #game {background-color:#C0C0C0;}
 

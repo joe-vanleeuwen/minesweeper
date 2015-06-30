@@ -6,6 +6,8 @@ class Square extends Events
     bombs: null # if bombs is null then square is a bomb
     isBomb: no
     isRevealed: no
+    isClicked: no
+    isFlagged: no
 
   classes:
     0: "zero"
@@ -20,10 +22,13 @@ class Square extends Events
 
   constructor: (options) ->
     super()
-    for k, v of _.extend @defaults, options
-      @[k] = v
+    @setProps(options)
     @createEl()
     @setClickEvent()
+
+  setProps: (options)->
+    for k, v of _.extend @defaults, options
+      @[k] = v
 
   createEl: ->
     {x,y} = @position
@@ -32,41 +37,37 @@ class Square extends Events
 
   render: -> @$el
 
-  show: (state)->
-    if @isBomb
-      if state is "game_over"
-        @$el.addClass("revealed bomb")
-      else
-        @$el.addClass("revealed bomb-death")
-    else
-      @$el.addClass("revealed #{@classes[@bombs]}")
-    @silence()
-    # else if @bombs is 0
-
-  onShowSquare: ->
-    # @off()
-    console.log "on Show Square !!!", @
-    # @show()
-
-
-  setClickEvent: ->
-    @$el.on "click", (e)=>
-      e.preventDefault()
-      if e.which is 1
-        console.log "left click"
-        @trigger "show:square", @
-      # TODO: RIGHT CLICK NOT WORKING
-      else if e.which is 3
-        console.log "right click"
-        @trigger "flag:square", @position
-      return false
-
-  silence: ->
+  show: ->
+    @isRevealed = yes
+    @$el.addClass(@classes[@bombs])
     @$el.off()
     @off()
 
-  destroy: ->
-    @silence()
+  gameOver: ->
+    if @isBomb
+      klass = if @isClicked then "bomb-death" else "bomb"
+    else if @isFlagged
+      klass = "bomb-misflagged"
+    @$el.addClass(klass)
 
+  onFlagSquare: ->
+    @isFlagged = not @isFlagged
+    @$el.toggleClass("bomb-flagged")
+
+  setClickEvent: ->
+    @$el.on "mouseup", (e)=>
+      e.preventDefault()
+      if e.which is 1
+        @isClicked = yes
+        @trigger("show", @) if not @isFlagged
+      return false
+
+    @$el.on "contextmenu", (e)=>
+      @trigger "flag:square", not @isFlagged
+      return false
+
+  destroy: ->
+    @$el.off()
+    @off()
 
 module.exports = Square
